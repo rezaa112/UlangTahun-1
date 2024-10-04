@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kejutan Ulang Tahun!</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Hubungkan ke file CSS -->
+</head>
+<body>
+
+    <div class="container">
+        <div class="message-box">
+            <img src="balon .png" alt="Balloons" class="balloons">
+            <h1 id="surprise-message">Selamat Ulang Tahun!</h1>
+            <p id="birthday-message">GABRIELA ABIGAIL MEWENGKANG</p>
+            <button id="reveal-btn" onclick="revealMessage()">Klik untuk Kejutan</button>
+            <div id="hidden-message" class="fade-in" style="display: none;">
+                <p>Selamat ulang tahun! 
+                    Semoga tahun ini memberikan banyak kebahagiaan untukmu.</p>
+                <img src="cake.png" alt="Cake" class="cake">
+            </div>
+        </div>
+
+        <!-- Carousel Slide Pertanyaan dan Ucapan -->
+        <div id="slider" class="fade-in">
+            <div class="slide active">
+                <p>Selamat ulang tahun ellaa</p>
+            </div>
+            <div class="slide">
+                <p>Tetap lucu yaaaa,jangan pernah menyerah dengan semua usahamu</p>
+            </div>
+            <div class="slide">
+                <p>Tetap menjadi ella yang dikenal banyak orang yaaa</p>
+            </div>
+            <div class="slide">
+                <p>Semua orang sayang ellaaa</p>
+            </div>
+        </div>
+        
+        <!-- Tombol navigasi carousel -->
+        <button class="nav-btn" id="prev-btn" onclick="prevSlide()">Sebelumnya</button>
+        <button class="nav-btn" id="next-btn" onclick="nextSlide()">Selanjutnya</button>
+    </div>
+
+    <!-- Elemen kembang api -->
+    <canvas id="fireworksCanvas"></canvas>
+
+    <!-- Audio kejutan -->
+    <audio id="birthday-song" src="WhatsApp Audio 2024-10-04 at 09.54.26.aac"></audio>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                }
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function revealMessage() {
+            var hiddenMessage = document.getElementById('hidden-message');
+            hiddenMessage.style.display = 'block';
+            hiddenMessage.classList.add('active');
+            document.getElementById('reveal-btn').style.display = 'none';
+
+            // Putar musik dan mulai kembang api
+            var audio = document.getElementById('birthday-song');
+            audio.play();
+
+            createFireworks(); // Mulai animasi kembang api
+        }
+
+        function random(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function createFireworks() {
+            const canvas = document.getElementById('fireworksCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let fireworks = [];
+            const colors = ['#ff4b5c', '#ff9a9e', '#ffd1ff', '#a29bfe', '#6c5ce7', '#74b9ff'];
+
+            function Firework(x, y, xEnd, yEnd, color, speed, size) {
+                this.x = x;
+                this.y = y;
+                this.xEnd = xEnd;
+                this.yEnd = yEnd;
+                this.color = color;
+                this.speed = speed;
+                this.size = size;
+                this.complete = false;
+
+                this.update = function() {
+                    if (Math.abs(this.x - this.xEnd) > 2 || Math.abs(this.y - this.yEnd) > 2) {
+                        this.x += (this.xEnd - this.x) * this.speed;
+                        this.y += (this.yEnd - this.y) * this.speed;
+                    } else {
+                        this.complete = true;
+                    }
+                };
+
+                this.draw = function() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    ctx.closePath();
+                };
+            }
+
+            function addFirework() {
+                let xStart = random(0, canvas.width);
+                let yStart = canvas.height;
+                let xEnd = random(0, canvas.width);
+                let yEnd = random(0, canvas.height / 2);
+                let color = colors[Math.floor(random(0, colors.length))];
+                let size = random(2, 4);
+                let speed = random(0.02, 0.05);
+
+                fireworks.push(new Firework(xStart, yStart, xEnd, yEnd, color, speed, size));
+            }
+
+            function animateFireworks() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                fireworks = fireworks.filter(fw => !fw.complete);
+
+                for (let fw of fireworks) {
+                    fw.update();
+                    fw.draw();
+                }
+
+                if (fireworks.length > 0) {
+                    requestAnimationFrame(animateFireworks);
+                } else {
+                    canvas.style.display = 'none'; // Sembunyikan canvas setelah kembang api selesai
+                }
+            }
+
+            // Mulai animasi kembang api
+            canvas.style.display = 'block';
+            for (let i = 0; i < 10; i++) {
+                setTimeout(addFirework, i * 200);
+            }
+
+            requestAnimationFrame(animateFireworks);
+        }
+    </script>
+
+</body>
+</html>
